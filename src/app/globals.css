@@ -1,26 +1,319 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   Seihu Portal — Design Tokens
+   Source of Truth: design-system/seihu-portal/MASTER.md
+   Style: Accessible & Ethical（政府サイト / WCAG AAA 目標）
+
+   構成:
+   1. プリミティブ値（:root のCSS変数 = ライト, .dark で上書き）
+   2. @theme inline でTailwindユーティリティ（bg-*, text-*, font-* など）に接続
+   3. 本文16px+ / 高コントラスト / 可視フォーカス / reduced-motion 対応
+   ============================================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* --- ブランド固定色（モードに依らず一定の基準色） --- */
+  --color-brand-navy: #0f172a; /* Primary */
+  --color-brand-slate: #334155; /* Secondary */
+  --color-brand-blue: #0369a1; /* Accent / CTA */
+
+  /* --- セマンティックトークン: Light --- */
+  --background: #f8fafc; /* ページ背景 */
+  --foreground: #020617; /* 既定テキスト（対 background ≈ 17:1） */
+
+  --surface: #ffffff; /* カード/パネル面 */
+  --surface-foreground: #020617;
+  --surface-muted: #e8ecf1; /* 控えめな面（区切り帯など） */
+
+  --primary: #0f172a; /* 主要・ヘッダ等 */
+  --primary-foreground: #ffffff; /* 対 primary ≈ 17:1 */
+
+  --secondary: #334155;
+  --secondary-foreground: #ffffff; /* 対 secondary ≈ 9.6:1 */
+
+  --accent: #0369a1; /* CTA / リンク（対 white ≈ 5.7:1, AA Large+本文OK） */
+  --accent-foreground: #ffffff;
+  --accent-hover: #075985; /* hover時に濃く（コントラスト維持） */
+
+  --muted: #e8ecf1; /* 弱い背景 */
+  --muted-foreground: #475569; /* 補助テキスト（対 background ≈ 7.5:1） */
+
+  --border: #e2e8f0; /* 既定の境界線 */
+  --input: #cbd5e1; /* フォーム境界（境界線より濃く視認性確保） */
+  --ring: #0369a1; /* フォーカスリング（背景に対して明瞭） */
+
+  --link: #075985; /* 本文中リンク（対 white ≈ 7.4:1, AAA本文） */
+  --link-visited: #6b21a8;
+
+  --destructive: #dc2626; /* エラー/危険（対 white ≈ 4.8:1） */
+  --destructive-foreground: #ffffff;
+  --success: #15803d; /* 成功（対 white ≈ 4.6:1） */
+  --success-foreground: #ffffff;
+  --warning: #b45309; /* 警告（対 white ≈ 4.9:1） */
+  --warning-foreground: #ffffff;
+
+  /* --- スペーシングスケール（MASTER.md 由来） --- */
+  --space-xs: 0.25rem; /* 4px */
+  --space-sm: 0.5rem; /* 8px */
+  --space-md: 1rem; /* 16px */
+  --space-lg: 1.5rem; /* 24px */
+  --space-xl: 2rem; /* 32px */
+  --space-2xl: 3rem; /* 48px */
+  --space-3xl: 4rem; /* 64px */
+
+  /* --- 角丸 --- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem; /* ボタン/入力の既定 */
+  --radius-lg: 0.75rem; /* カード */
+  --radius-xl: 1rem; /* モーダル */
+
+  /* --- シャドウ（MASTER.md 由来） --- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  /* --- フォーカスリング（3-4px, 高視認） --- */
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
 }
 
+/* =============================================================================
+   ダークモード — class 戦略（.dark）。手動トグルにも prefers にも対応できる。
+   政府サイトとして高コントラストを維持（背景は純黒を避け眼精疲労を軽減）。
+   ============================================================================ */
+.dark {
+  color-scheme: dark;
+
+  --background: #020617;
+  --foreground: #f1f5f9; /* 対 background ≈ 16:1 */
+
+  --surface: #0f172a;
+  --surface-foreground: #f1f5f9;
+  --surface-muted: #1e293b;
+
+  --primary: #e2e8f0; /* 暗背景では主要面を明色に反転 */
+  --primary-foreground: #0f172a;
+
+  --secondary: #cbd5e1;
+  --secondary-foreground: #0f172a;
+
+  --accent: #38bdf8; /* 暗背景での CTA（対 #0f172a ≈ 8.9:1） */
+  --accent-foreground: #0f172a;
+  --accent-hover: #7dd3fc;
+
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8; /* 対 background ≈ 7.4:1 */
+
+  --border: #334155;
+  --input: #475569;
+  --ring: #38bdf8;
+
+  --link: #7dd3fc; /* 対 background ≈ 11:1 */
+  --link-visited: #d8b4fe;
+
+  --destructive: #f87171; /* 対 background ≈ 7:1 */
+  --destructive-foreground: #020617;
+  --success: #4ade80;
+  --success-foreground: #020617;
+  --warning: #fbbf24;
+  --warning-foreground: #020617;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* OS設定がダークで、明示的トグル（.light）がない場合は自動でダーク */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    color-scheme: dark;
+
+    --background: #020617;
+    --foreground: #f1f5f9;
+    --surface: #0f172a;
+    --surface-foreground: #f1f5f9;
+    --surface-muted: #1e293b;
+    --primary: #e2e8f0;
+    --primary-foreground: #0f172a;
+    --secondary: #cbd5e1;
+    --secondary-foreground: #0f172a;
+    --accent: #38bdf8;
+    --accent-foreground: #0f172a;
+    --accent-hover: #7dd3fc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --border: #334155;
+    --input: #475569;
+    --ring: #38bdf8;
+    --link: #7dd3fc;
+    --link-visited: #d8b4fe;
+    --destructive: #f87171;
+    --destructive-foreground: #020617;
+    --success: #4ade80;
+    --success-foreground: #020617;
+    --warning: #fbbf24;
+    --warning-foreground: #020617;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* =============================================================================
+   Tailwind v4 テーマ接続
+   これにより bg-background / text-foreground / text-accent / font-heading /
+   shadow-md / rounded-lg などのユーティリティが上記トークンを参照する。
+   ============================================================================ */
 @theme inline {
+  /* 色 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-muted: var(--surface-muted);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-link-visited: var(--link-visited);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* フォント。見出し=Lexend、本文=Source Sans 3 + Noto Sans JP（next/font が変数を供給） */
+  --font-heading: var(--font-lexend), var(--font-noto-sans-jp), system-ui,
+    sans-serif;
+  --font-sans: var(--font-source-sans), var(--font-noto-sans-jp), system-ui,
+    sans-serif;
+
+  /* 角丸 */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  /* シャドウ */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  /* タイポグラフィスケール（本文16px起点・行間ゆとり） */
+  --text-xs: 0.8125rem; /* 13px 補助のみ */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px 本文既定 */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.375rem; /* 22px */
+  --text-2xl: 1.75rem; /* 28px */
+  --text-3xl: 2.25rem; /* 36px */
+  --text-4xl: 3rem; /* 48px */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =============================================================================
+   ベーススタイル
+   ============================================================================ */
+* {
+  border-color: var(--border);
+}
+
+html {
+  /* ルート16px。rem 基準を明示。 */
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 1rem; /* 16px 本文 */
+  line-height: 1.7; /* 日本語の可読性確保 */
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+
+/* 本文中リンクの既定（コンポーネントで上書き可） */
+a {
+  color: var(--link);
+  text-underline-offset: 0.2em;
+}
+
+/* =============================================================================
+   フォーカス可視化（キーボード操作の必須要件）
+   :focus-visible のみリングを出し、マウスクリックでは出さない。
+   ============================================================================ */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* リングをoutlineで描けない（角丸クリップ等）要素向けのユーティリティ。 */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 var(--focus-ring-offset) var(--background),
+    0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--ring);
+}
+
+/* =============================================================================
+   スキップリンク（a11y 土台）。フォーカス時のみ表示。
+   ============================================================================ */
+.skip-link {
+  position: absolute;
+  left: var(--space-md);
+  top: calc(var(--space-md) * -4);
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  transition: top 150ms ease;
+}
+
+.skip-link:focus {
+  top: var(--space-md);
+}
+
+/* =============================================================================
+   モーション抑制（prefers-reduced-motion）
+   ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
