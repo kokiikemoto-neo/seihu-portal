@@ -8,7 +8,7 @@
  * 共有契約 types.ts（①管理）の Page / PageStatus / PageLayout を使う。重複定義しない。
  */
 import { randomUUID } from 'node:crypto';
-import type { Page, PageLayout } from '@/lib/blocks/types';
+import type { BlockInstance, Page, PageLayout } from '@/lib/blocks/types';
 
 /** ページ新規作成の入力（id/日時/status はストアが付与）。 */
 export interface CreatePageInput {
@@ -114,6 +114,88 @@ export class InMemoryPageRepository implements PageRepository {
     this.pages.set(id, published);
     return published;
   }
+
+  /**
+   * 初期データ（デモページ）を直接投入する（開発・動作確認用）。
+   * create() を介さず Page 全体を構築できるよう、ストア内部で完結させる。
+   */
+  seed(page: Page): void {
+    this.pages.set(page.id, page);
+  }
+}
+
+/**
+ * デモページ（slug: home）を1件生成する。
+ * draftLayout に hero / notice / richtext の BlockInstance を各1つ含む（status=draft）。
+ * ビルダー・保存・公開フローの動作確認用。
+ */
+export const DEMO_PAGE_ID = 'demo-home';
+
+function buildDemoPage(): Page {
+  const timestamp = '2026-06-16T00:00:00.000Z';
+  const draftLayout: PageLayout = [
+    {
+      id: 'demo-hero-1',
+      type: 'hero',
+      props: {
+        organization: '〇〇省',
+        headline: 'くらしに役立つ手続きとお知らせ',
+        description: '各種手続き・申請・相談窓口へのご案内です。',
+        ctas: [
+          { label: '手続きを探す', href: '/tetsuzuki' },
+          { label: 'お問い合わせ', href: '/contact' },
+        ],
+      },
+    } satisfies BlockInstance,
+    {
+      id: 'demo-notice-1',
+      type: 'notice',
+      props: {
+        heading: 'お知らせ',
+        items: [
+          {
+            date: '2026-06-16',
+            title: '窓口受付時間の変更について',
+            href: '/news/1',
+            level: 'normal',
+          },
+          {
+            date: '2026-06-10',
+            title: '【重要】システムメンテナンスのお知らせ',
+            href: '/news/2',
+            level: 'important',
+          },
+        ],
+      },
+    } satisfies BlockInstance,
+    {
+      id: 'demo-richtext-1',
+      type: 'richtext',
+      props: {
+        heading: '当ポータルについて',
+        headingLevel: 'h2',
+        body: 'このポータルでは、各種行政手続きやお知らせをまとめてご案内します。\nお探しの情報が見つからない場合はお問い合わせ窓口をご利用ください。',
+      },
+    } satisfies BlockInstance,
+  ];
+
+  return {
+    id: DEMO_PAGE_ID,
+    slug: 'home',
+    title: 'トップページ',
+    status: 'draft',
+    draftLayout,
+    publishedLayout: null,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+/** 新規のインメモリリポジトリを生成し、デモページを投入して返す。 */
+function createSeededRepository(): InMemoryPageRepository {
+  const repo = new InMemoryPageRepository();
+  repo.seed(buildDemoPage());
+  return repo;
 }
 
 /**
@@ -126,7 +208,7 @@ const globalForPageStore = globalThis as unknown as {
 };
 
 export const pageRepository: PageRepository =
-  globalForPageStore.__seihuPageRepository ?? new InMemoryPageRepository();
+  globalForPageStore.__seihuPageRepository ?? createSeededRepository();
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPageStore.__seihuPageRepository = pageRepository;

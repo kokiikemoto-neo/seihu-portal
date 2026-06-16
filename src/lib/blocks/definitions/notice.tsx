@@ -1,13 +1,16 @@
-'use client';
 /**
- * notice ブロック（③ 定義 / ② 表示）
+ * notice ブロック定義（③ システム系）
  * お知らせ・緊急情報のリストを表示する。
  *
- * 'use client' 指定の理由: Editor が onChange を持つため。
+ * 責務分離（docs/ARCHITECTURE.md）:
+ *   - 定義（type / schema / defaultProps / props型）＝ ③（このファイル）
+ *   - 表示・編集UI（Render / Editor）＝ ②（@/components/blocks/NoticeBlock）
+ *
+ * 依存方向: definition → component は実行時 import、component → definition は type のみ。
  */
-import type React from 'react';
 import { z } from 'zod';
 import type { BlockDefinition } from '../registry';
+import { NoticeRender, NoticeEditor } from '@/components/blocks/NoticeBlock';
 
 /** お知らせ1件 */
 const noticeItemSchema = z.object({
@@ -49,48 +52,11 @@ const defaultProps: NoticeProps = {
   ],
 };
 
-// TODO(②UI): 見た目はUI担当が後で実装。素のプレースホルダ。
-const Render: React.FC<{ props: NoticeProps }> = ({ props }) => {
-  return (
-    <section data-block="notice">
-      <h2>{props.heading}</h2>
-      <ul>
-        {props.items.map((item, i) => (
-          <li key={i} data-level={item.level}>
-            <time>{item.date}</time>{' '}
-            {item.href ? <a href={item.href}>{item.title}</a> : <span>{item.title}</span>}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-};
-
-// TODO(②UI): 見た目・項目編集UI（追加/削除/並び替え）はUI担当が後で実装。
-const Editor: React.FC<{ props: NoticeProps; onChange: (next: NoticeProps) => void }> = ({
-  props,
-  onChange,
-}) => {
-  return (
-    <div data-block-editor="notice">
-      <label>
-        セクション見出し
-        <input
-          value={props.heading}
-          onChange={(e) => onChange({ ...props, heading: e.target.value })}
-        />
-      </label>
-      {/* TODO(②UI): items の行ごとの編集（date/title/href/level）と追加/削除/並び替えUIは未実装。 */}
-      <p>登録件数: {props.items.length}</p>
-    </div>
-  );
-};
-
 export const noticeBlock: BlockDefinition<NoticeProps> = {
   type: 'notice',
   label: 'お知らせリスト',
   schema: noticeSchema,
   defaultProps,
-  Render,
-  Editor,
+  Render: NoticeRender,
+  Editor: NoticeEditor,
 };
