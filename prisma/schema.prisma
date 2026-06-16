@@ -1,0 +1,23 @@
+// Prisma スキーマ（③/① システム永続化）
+// 開発は SQLite。本番は DATABASE_URL を Postgres 等に切り替え、provider を変更する。
+// layout 系は JSON 文字列として保存（SQLite 互換重視）。リポジトリ層で parse/stringify する。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Page {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  status          String   @default("draft") // 'draft' | 'published'
+  draftLayout     String   @default("[]") // JSON 文字列（PageLayout）
+  publishedLayout String? // JSON 文字列（PageLayout）または null
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
