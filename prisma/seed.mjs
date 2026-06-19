@@ -3,6 +3,7 @@
 // slug 'home' を upsert する（既にあれば内容を更新、なければ作成）。
 // layout は JSON 文字列で保存（リポジトリ層の保存形式に一致）。
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -55,6 +56,17 @@ async function main() {
     },
   });
   console.log(`seeded demo page: id=${page.id} slug=${page.slug}`);
+
+  // 初期管理者ユーザー（環境変数 ADMIN_EMAIL / ADMIN_PASSWORD）。本番では必ず変更すること。
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@example.lg.jp';
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'ChangeMe123!';
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { passwordHash, name: '管理者', role: 'admin' },
+    create: { email: adminEmail, name: '管理者', role: 'admin', passwordHash },
+  });
+  console.log(`seeded admin user: ${admin.email}（パスワードは ADMIN_PASSWORD）`);
 }
 
 main()
