@@ -35,8 +35,11 @@ import { getAllBlockDefinitions, getBlockDefinition } from '@/lib/blocks/registr
 // パレットが空・プロパティ編集UI未登録・プレビュー「未対応」になる）。
 import { ensureBlocksRegistered } from '@/lib/blocks/definitions';
 import { SortableBlockItem } from './SortableBlockItem';
+import { PageSettings } from './PageSettings';
 import {
   CheckCircleIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   ExclamationCircleIcon,
   PlusIcon,
   SquaresPlusIcon,
@@ -47,16 +50,23 @@ import {
 ensureBlocksRegistered();
 
 /* =============================================================================
-   契約型（docs/PHASE2.md）
+   契約型（docs/PHASE2.md → docs/PHASE3D.md で拡張）
    ============================================================================ */
 export interface BuilderProps {
   pageId: string;
   pageTitle: string;
+  /** NEW(3D): SEO説明文の初期値（page.description ?? ''）。 */
+  initialDescription: string;
   initialLayout: PageLayout;
   /** ③ の Server Action: 下書き保存 */
   saveAction: (layout: PageLayout) => Promise<{ ok: boolean }>;
   /** ③ の Server Action: 公開 */
   publishAction: () => Promise<{ ok: boolean }>;
+  /** NEW(3D): ③ の Server Action: ページのメタ（title/description）保存。 */
+  metaAction: (meta: {
+    title: string;
+    description: string;
+  }) => Promise<{ ok: boolean }>;
 }
 
 /* =============================================================================
@@ -79,9 +89,17 @@ type Toast = { kind: 'success' | 'error'; message: string } | null;
    Builder
    ============================================================================ */
 export function Builder(props: BuilderProps): React.ReactElement {
-  const { pageTitle, initialLayout, saveAction, publishAction } = props;
+  const {
+    pageTitle,
+    initialDescription,
+    initialLayout,
+    saveAction,
+    publishAction,
+    metaAction,
+  } = props;
 
   const [layout, setLayout] = useState<PageLayout>(initialLayout);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(
     initialLayout[0]?.id ?? null,
   );
@@ -248,6 +266,40 @@ export function Builder(props: BuilderProps): React.ReactElement {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              onClick={() => setSettingsOpen((v) => !v)}
+              aria-expanded={settingsOpen}
+              aria-controls="page-settings-panel"
+              className="focus-ring inline-flex items-center justify-center gap-2 rounded-md border-2 border-primary-foreground/50 bg-transparent px-5 py-2.5 font-sans font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary-foreground/10 cursor-pointer min-h-[44px]"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              ページ設定
+              {settingsOpen ? (
+                <ChevronUpIcon className="h-4 w-4" />
+              ) : (
+                <ChevronDownIcon className="h-4 w-4" />
+              )}
+            </button>
+            <button
+              type="button"
               onClick={handleSave}
               disabled={busy}
               aria-busy={saving}
@@ -269,6 +321,30 @@ export function Builder(props: BuilderProps): React.ReactElement {
           </div>
         </div>
       </header>
+
+      {/* ===== ページ設定パネル（SEO: title / description） ===== */}
+      {settingsOpen ? (
+        <section
+          id="page-settings-panel"
+          aria-label="ページ設定"
+          className="border-b border-border bg-surface-muted/40"
+        >
+          <div className="mx-auto max-w-[1600px] px-4 py-6 md:px-6">
+            <div className="mx-auto max-w-2xl rounded-lg border border-border bg-surface p-5 shadow-sm">
+              <h2 className="font-heading text-base font-semibold text-foreground border-b border-border pb-2">
+                ページ設定（SEO・メタ情報）
+              </h2>
+              <div className="mt-4">
+                <PageSettings
+                  initialTitle={pageTitle}
+                  initialDescription={initialDescription}
+                  metaAction={metaAction}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* ===== トースト（aria-live, フォーカスを奪わない） ===== */}
       <div

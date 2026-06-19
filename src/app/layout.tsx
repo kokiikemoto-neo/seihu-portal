@@ -33,6 +33,11 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
+  // OGP/canonical 等の相対URLを絶対URLへ解決するための基準。
+  // 環境変数 NEXT_PUBLIC_SITE_URL（③が .env に追加）が無ければローカルにフォールバック。
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
     default: "Seihu Portal — 政府機関ポータル",
     template: "%s | Seihu Portal",
@@ -42,6 +47,16 @@ export const metadata: Metadata = {
   applicationName: "Seihu Portal",
   authors: [{ name: "Seihu Portal" }],
   robots: { index: true, follow: true },
+  // 既定のOGP。公開ページ側（③ generateMetadata）が title/description/url を上書きする。
+  openGraph: {
+    siteName: "Seihu Portal",
+    locale: "ja_JP",
+    type: "website",
+  },
+  // 既定の Twitter/X カード。large image を基本とする。
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export const viewport: Viewport = {
