@@ -15,6 +15,10 @@ import { registerBlock, type BlockDefinition } from '../registry';
 import { heroBlock } from './hero';
 import { noticeBlock } from './notice';
 import { richtextBlock } from './richtext';
+import { emergencyBannerBlock } from './emergency-banner';
+import { serviceLinksBlock } from './service-links';
+import { faqBlock } from './faq';
+import { breadcrumbBlock } from './breadcrumb';
 
 /** 登録対象の全ブロック定義。新規ブロックはここに追加する。 */
 const allBlocks: BlockDefinition<unknown>[] = [
@@ -22,6 +26,10 @@ const allBlocks: BlockDefinition<unknown>[] = [
   heroBlock as unknown as BlockDefinition<unknown>,
   noticeBlock as unknown as BlockDefinition<unknown>,
   richtextBlock as unknown as BlockDefinition<unknown>,
+  emergencyBannerBlock as unknown as BlockDefinition<unknown>,
+  serviceLinksBlock as unknown as BlockDefinition<unknown>,
+  faqBlock as unknown as BlockDefinition<unknown>,
+  breadcrumbBlock as unknown as BlockDefinition<unknown>,
 ];
 
 let registered = false;
@@ -41,6 +49,14 @@ ensureBlocksRegistered();
 export { heroBlock } from './hero';
 export { noticeBlock } from './notice';
 export { richtextBlock } from './richtext';
+export { emergencyBannerBlock } from './emergency-banner';
+export { serviceLinksBlock } from './service-links';
+export { faqBlock } from './faq';
+export { breadcrumbBlock } from './breadcrumb';
 export type { HeroProps } from './hero';
 export type { NoticeProps } from './notice';
 export type { RichtextProps } from './richtext';
+export type { EmergencyBannerProps } from './emergency-banner';
+export type { ServiceLinksProps } from './service-links';
+export type { FaqProps } from './faq';
+export type { BreadcrumbProps } from './breadcrumb';
