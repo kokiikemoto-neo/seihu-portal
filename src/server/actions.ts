@@ -7,6 +7,7 @@
  *
  * - savePageLayout: ビルダーの編集中配置を draftLayout として保存
  * - publishPage:    draftLayout を publishedLayout にコピーし status を 'published' に
+ * - updatePageMeta: ページのタイトル／SEO説明文（description）を更新
  * - createPage:     ページを新規作成（slug/title をバリデーション）
  * - deletePage:     ページを削除
  *
@@ -57,6 +58,39 @@ export async function publishPage(pageId: string): Promise<{ ok: boolean }> {
   revalidatePath(`/${published.slug}`);
   revalidatePath(`/admin/builder/${pageId}`);
   return { ok: true };
+}
+
+/**
+ * ページのメタ情報（タイトル・SEO説明文）を更新する。
+ *
+ * ビルダーの「ページ設定」から呼ばれる。description が空文字（trim 後）なら
+ * `null` を保存し、公開ページでは本文からの自動生成（deriveDescription）に
+ * フォールバックさせる。
+ *
+ * @param pageId 対象ページのID
+ * @param meta   title（ページ名）と description（SEO説明文）
+ * @returns 成功可否（例外時も `{ ok: false }`）
+ */
+export async function updatePageMeta(
+  pageId: string,
+  meta: { title: string; description: string },
+): Promise<{ ok: boolean }> {
+  try {
+    const updated = await pageRepository.update(pageId, {
+      title: meta.title,
+      description: meta.description.trim() === '' ? null : meta.description,
+    });
+    if (!updated) {
+      return { ok: false };
+    }
+    // ページ一覧・トップ入口ハブ・該当公開パスのキャッシュを無効化。
+    revalidatePath('/admin/pages');
+    revalidatePath('/');
+    revalidatePath(`/${updated.slug}`);
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
 }
 
 /**

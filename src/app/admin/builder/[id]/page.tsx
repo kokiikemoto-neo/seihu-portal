@@ -17,7 +17,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Builder } from '@/components/builder/Builder';
 import { pageRepository } from '@/server/pageStore';
-import { savePageLayout, publishPage } from '@/server/actions';
+import { savePageLayout, publishPage, updatePageMeta } from '@/server/actions';
 import type { PageLayout } from '@/lib/blocks/types';
 
 export const metadata: Metadata = {
@@ -48,13 +48,24 @@ export default async function BuilderPage({
     return publishPage(id);
   }
 
+  // ページ設定（タイトル・SEO説明文）の保存。id を束縛し updatePageMeta に委譲。
+  async function metaAction(meta: {
+    title: string;
+    description: string;
+  }): Promise<{ ok: boolean }> {
+    'use server';
+    return updatePageMeta(id, meta);
+  }
+
   return (
     <Builder
       pageId={page.id}
       pageTitle={page.title}
+      initialDescription={page.description ?? ''}
       initialLayout={page.draftLayout}
       saveAction={saveAction}
       publishAction={publishAction}
+      metaAction={metaAction}
     />
   );
 }
