@@ -15,8 +15,69 @@
  * 公開ページのキャッシュ無効化のため、必要に応じて revalidatePath を呼ぶ。
  */
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { pageRepository } from './pageStore';
+import { prisma } from '@/server/db';
+import {
+  verifyPassword,
+  setSessionCookie,
+  clearSessionCookie,
+  requireUser,
+} from '@/server/auth';
 import type { PageLayout } from '@/lib/blocks/types';
+
+/* ============================================================
+ * 認証（③ 配線 / コアは @/server/auth ①）
+ * ============================================================ */
+
+/**
+ * ログイン。email で User を引き、パスワードを照合してセッションCookieを発行する。
+ *
+ * ユーザー列挙を防ぐため、ユーザー不在とパスワード不一致は **同一の汎用エラー** を返す。
+ * @param input email / password（平文）
+ * @returns 成功可否。失敗時は error にメッセージ。
+ */
+export async function login(input: {
+  email: string;
+  password: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const GENERIC_ERROR = 'メールアドレスまたはパスワードが正しくありません。';
+  try {
+    const email = input.email?.trim() ?? '';
+    const password = input.password ?? '';
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // ユーザー不在でも同一の汎用エラー（列挙防止）。
+      return { ok: false, error: GENERIC_ERROR };
+    }
+
+    const matched = await verifyPassword(password, user.passwordHash);
+    if (!matched) {
+      return { ok: false, error: GENERIC_ERROR };
+    }
+
+    await setSessionCookie({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'ログイン処理でエラーが発生しました。' };
+  }
+}
+
+/**
+ * ログアウト。セッションCookieを破棄してログイン画面へリダイレクトする。
+ *
+ * 注: `redirect` は内部で例外を投げるため try/catch の外で呼ぶ（Next.js 16 / redirect.md 準拠）。
+ */
+export async function logout(): Promise<void> {
+  await clearSessionCookie();
+  redirect('/login');
+}
 
 /**
  * slug の形式（公開URLのパスとして使える文字のみ）。
@@ -35,6 +96,11 @@ export async function savePageLayout(
   pageId: string,
   layout: PageLayout,
 ): Promise<{ ok: boolean }> {
+  try {
+    await requireUser();
+  } catch {
+    return { ok: false };
+  }
   const updated = await pageRepository.update(pageId, { draftLayout: layout });
   if (!updated) {
     return { ok: false };
@@ -50,6 +116,11 @@ export async function savePageLayout(
  * @returns 成功可否
  */
 export async function publishPage(pageId: string): Promise<{ ok: boolean }> {
+  try {
+    await requireUser();
+  } catch {
+    return { ok: false };
+  }
   const published = await pageRepository.publish(pageId);
   if (!published) {
     return { ok: false };
@@ -75,6 +146,11 @@ export async function updatePageMeta(
   pageId: string,
   meta: { title: string; description: string },
 ): Promise<{ ok: boolean }> {
+  try {
+    await requireUser();
+  } catch {
+    return { ok: false };
+  }
   try {
     const updated = await pageRepository.update(pageId, {
       title: meta.title,
@@ -103,6 +179,11 @@ export async function createPage(input: {
   slug: string;
   title: string;
 }): Promise<{ ok: boolean; id?: string; error?: string }> {
+  try {
+    await requireUser();
+  } catch {
+    return { ok: false, error: 'ログインが必要です。' };
+  }
   try {
     const slug = input.slug?.trim() ?? '';
     const title = input.title?.trim() ?? '';
@@ -145,6 +226,11 @@ export async function createPage(input: {
  * @returns 成功可否
  */
 export async function deletePage(pageId: string): Promise<{ ok: boolean }> {
+  try {
+    await requireUser();
+  } catch {
+    return { ok: false };
+  }
   const removed = await pageRepository.remove(pageId);
   if (!removed) {
     return { ok: false };
