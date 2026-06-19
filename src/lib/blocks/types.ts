@@ -17,6 +17,7 @@ export type BlockType =
   | 'richtext'
   | 'faq'
   | 'breadcrumb'
+  | 'org-guide'
   | 'contact'
   | 'image'
   | 'spacer';
