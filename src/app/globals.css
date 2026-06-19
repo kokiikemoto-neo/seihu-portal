@@ -257,7 +257,9 @@ h6 {
   font-family: var(--font-heading);
   font-weight: 600;
   line-height: 1.25;
-  color: var(--foreground);
+  /* 色は継承させる（body が --foreground）。bg-primary 等の領域では
+     親の text-primary-foreground を継承し、濃色背景でも可読性を保つ。 */
+  color: inherit;
 }
 
 /* 本文中リンクの既定（コンポーネントで上書き可） */

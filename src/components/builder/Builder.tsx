@@ -30,6 +30,10 @@ import {
 } from '@dnd-kit/sortable';
 import type { BlockInstance, BlockType, PageLayout } from '@/lib/blocks/types';
 import { getAllBlockDefinitions, getBlockDefinition } from '@/lib/blocks/registry';
+// クライアント側でもブロック定義の登録を保証する（レジストリ登録は import 副作用のため、
+// このクライアントコンポーネントから明示 import しないと client バンドルで登録されず、
+// パレットが空・プロパティ編集UI未登録・プレビュー「未対応」になる）。
+import { ensureBlocksRegistered } from '@/lib/blocks/definitions';
 import { SortableBlockItem } from './SortableBlockItem';
 import {
   CheckCircleIcon,
@@ -37,6 +41,10 @@ import {
   PlusIcon,
   SquaresPlusIcon,
 } from './icons';
+
+// クライアントバンドル評価時にブロック定義を登録する（tree-shaking で副作用 import が
+// 落ちないよう、明示的に呼び出す）。
+ensureBlocksRegistered();
 
 /* =============================================================================
    契約型（docs/PHASE2.md）
