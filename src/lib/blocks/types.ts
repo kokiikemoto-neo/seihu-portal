@@ -12,9 +12,11 @@
 export type BlockType =
   | 'hero'
   | 'notice'
+  | 'emergency-banner'
   | 'service-links'
   | 'richtext'
   | 'faq'
+  | 'breadcrumb'
   | 'contact'
   | 'image'
   | 'spacer';
