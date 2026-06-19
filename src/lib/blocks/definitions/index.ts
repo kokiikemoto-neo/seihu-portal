@@ -19,6 +19,10 @@ import { emergencyBannerBlock } from './emergency-banner';
 import { serviceLinksBlock } from './service-links';
 import { faqBlock } from './faq';
 import { breadcrumbBlock } from './breadcrumb';
+import { contactBlock } from './contact';
+import { orgGuideBlock } from './org-guide';
+import { imageBlock } from './image';
+import { spacerBlock } from './spacer';
 
 /** 登録対象の全ブロック定義。新規ブロックはここに追加する。 */
 const allBlocks: BlockDefinition<unknown>[] = [
@@ -30,6 +34,10 @@ const allBlocks: BlockDefinition<unknown>[] = [
   serviceLinksBlock as unknown as BlockDefinition<unknown>,
   faqBlock as unknown as BlockDefinition<unknown>,
   breadcrumbBlock as unknown as BlockDefinition<unknown>,
+  contactBlock as unknown as BlockDefinition<unknown>,
+  orgGuideBlock as unknown as BlockDefinition<unknown>,
+  imageBlock as unknown as BlockDefinition<unknown>,
+  spacerBlock as unknown as BlockDefinition<unknown>,
 ];
 
 let registered = false;
@@ -53,6 +61,10 @@ export { emergencyBannerBlock } from './emergency-banner';
 export { serviceLinksBlock } from './service-links';
 export { faqBlock } from './faq';
 export { breadcrumbBlock } from './breadcrumb';
+export { contactBlock } from './contact';
+export { orgGuideBlock } from './org-guide';
+export { imageBlock } from './image';
+export { spacerBlock } from './spacer';
 export type { HeroProps } from './hero';
 export type { NoticeProps } from './notice';
 export type { RichtextProps } from './richtext';
@@ -60,3 +72,7 @@ export type { EmergencyBannerProps } from './emergency-banner';
 export type { ServiceLinksProps } from './service-links';
 export type { FaqProps } from './faq';
 export type { BreadcrumbProps } from './breadcrumb';
+export type { ContactProps } from './contact';
+export type { OrgGuideProps } from './org-guide';
+export type { ImageProps } from './image';
+export type { SpacerProps } from './spacer';
