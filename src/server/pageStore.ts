@@ -16,6 +16,8 @@ import { PrismaPageRepository } from '@/server/prismaPageRepository';
 export interface CreatePageInput {
   slug: string;
   title: string;
+  /** SEO用メタ説明文（任意） */
+  description?: string | null;
   /** 初期の編集中配置（省略時は空配置） */
   draftLayout?: PageLayout;
 }
@@ -24,6 +26,7 @@ export interface CreatePageInput {
 export interface UpdatePageInput {
   slug?: string;
   title?: string;
+  description?: string | null;
   draftLayout?: PageLayout;
 }
 
@@ -75,6 +78,7 @@ export class InMemoryPageRepository implements PageRepository {
       id: randomUUID(),
       slug: input.slug,
       title: input.title,
+      description: input.description ?? null,
       status: 'draft',
       draftLayout: input.draftLayout ?? [],
       publishedLayout: null,
@@ -92,6 +96,7 @@ export class InMemoryPageRepository implements PageRepository {
       ...existing,
       ...(input.slug !== undefined ? { slug: input.slug } : {}),
       ...(input.title !== undefined ? { title: input.title } : {}),
+      ...(input.description !== undefined ? { description: input.description } : {}),
       ...(input.draftLayout !== undefined ? { draftLayout: input.draftLayout } : {}),
       updatedAt: now(),
     };

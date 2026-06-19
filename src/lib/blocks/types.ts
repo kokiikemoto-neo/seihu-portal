@@ -44,6 +44,8 @@ export interface Page {
   /** 公開URLのパス（例: "kurashi/tetsuzuki"） */
   slug: string;
   title: string;
+  /** SEO用のメタ説明文（検索結果・OGPに使用。未設定なら null = 本文から自動生成） */
+  description: string | null;
   status: PageStatus;
   /** 編集中の配置 */
   draftLayout: PageLayout;

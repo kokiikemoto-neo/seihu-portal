@@ -15,6 +15,7 @@ model Page {
   id              String   @id @default(cuid())
   slug            String   @unique
   title           String
+  description     String? // SEO用メタ説明文（null = 本文から自動生成）
   status          String   @default("draft") // 'draft' | 'published'
   draftLayout     String   @default("[]") // JSON 文字列（PageLayout）
   publishedLayout String? // JSON 文字列（PageLayout）または null

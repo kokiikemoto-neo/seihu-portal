@@ -18,6 +18,7 @@ interface PageRow {
   id: string;
   slug: string;
   title: string;
+  description: string | null;
   status: string;
   draftLayout: string;
   publishedLayout: string | null;
@@ -41,6 +42,7 @@ function toPage(row: PageRow): Page {
     id: row.id,
     slug: row.slug,
     title: row.title,
+    description: row.description ?? null,
     status: row.status as PageStatus,
     draftLayout: parseLayout(row.draftLayout) ?? [],
     publishedLayout: parseLayout(row.publishedLayout),
@@ -72,6 +74,7 @@ export class PrismaPageRepository implements PageRepository {
       data: {
         slug: input.slug,
         title: input.title,
+        description: input.description ?? null,
         status: 'draft',
         draftLayout: JSON.stringify(input.draftLayout ?? []),
         publishedLayout: null,
@@ -87,6 +90,7 @@ export class PrismaPageRepository implements PageRepository {
         data: {
           ...(input.slug !== undefined ? { slug: input.slug } : {}),
           ...(input.title !== undefined ? { title: input.title } : {}),
+          ...(input.description !== undefined ? { description: input.description } : {}),
           ...(input.draftLayout !== undefined
             ? { draftLayout: JSON.stringify(input.draftLayout) }
             : {}),
