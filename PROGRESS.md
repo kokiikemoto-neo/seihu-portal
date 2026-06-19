@@ -14,7 +14,8 @@
 | 3A | 永続化(Prisma+SQLite) ・トップ入口ページ ・ページ作成/削除 | ✅ 完了 |
 | 3B-1 | 政府固有ブロック追加（緊急バナー/サービスリンク/FAQ/パンくず） | ✅ 完了 |
 | 3C | 定番ブロック拡充（問い合わせ先/組織案内/画像/余白）＝計11ブロック | ✅ 完了 |
-| 3B-2 | 認証/権限 ・SEO/メタ ・本番デプロイ | ⬜ 未着手 |
+| 3D | SEO/メタ（generateMetadata・OGP・sitemap・robots・ページ設定編集） | ✅ 完了 |
+| 3B-2 | 認証/権限 ・本番デプロイ | ⬜ 未着手 |
 
 品質ゲート（最終確認時）: `tsc --noEmit` ✅ / `eslint` ✅ / `next build` ✅ / dev実機スモーク ✅
 永続化検証: 別プロセスからのDB書き込みをdevサーバが読み取り、公開→`/任意slug`描画→下書き戻しで404、を確認済み。
@@ -31,6 +32,7 @@
 - [x] ブロック11種: hero / notice / richtext / 緊急情報バナー / サービス・手続きリンク集 / よくある質問(FAQ) / パンくず / **問い合わせ先** / **組織案内** / **画像** / **余白**
 - [x] デザインシステム（MASTER.md準拠、WCAG配慮）＋スタイルガイド `/style-guide`
 - [x] 管理画面: ページ一覧 `/admin/pages` / ビルダー `/admin/builder/[id]`
+- [x] **SEO/メタ**: 公開ページの `generateMetadata`（title/description/OGP/canonical）、`/sitemap.xml`、`/robots.txt`、ビルダーの「ページ設定」でtitle・SEO説明文を編集（未設定時は本文から自動生成）
 - [x] デモページ（slug: `home`）※ `npm run db:seed` で投入
 
 ## まだできていないこと
