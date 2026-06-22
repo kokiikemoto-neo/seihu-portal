@@ -10,6 +10,7 @@
  * getCurrentUser() を読むのみ（layout は cookies() を読めるが request 単位で動く）。
  */
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getCurrentUser, isAdmin } from '@/server/auth';
 import { logout } from '@/server/actions';
 import { LogoutButton } from '@/components/auth/LogoutButton';
@@ -34,7 +35,40 @@ export default async function AdminLayout({
     <div className="flex min-h-full flex-1 flex-col">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <p className="text-sm font-semibold">Seihu Portal 管理画面</p>
+          {/* 左上ロゴ: クリックでホーム（/）へ戻る */}
+          <Link
+            href="/"
+            aria-label="ホームへ戻る（Seihu Portal トップ）"
+            title="ホームへ戻る"
+            className="focus-ring group -m-1 flex min-h-[44px] items-center gap-2.5 rounded-md p-1 transition-colors hover:bg-muted cursor-pointer no-underline"
+          >
+            <span
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5"
+              >
+                <path d="M3 9.5 12 4l9 5.5" />
+                <path d="M4 10h16" />
+                <path d="M5.5 10v7.5M9.5 10v7.5M14.5 10v7.5M18.5 10v7.5" />
+                <path d="M3.5 17.5h17" />
+                <path d="M2.5 21h19" />
+              </svg>
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="font-heading text-sm font-bold text-foreground">
+                Seihu Portal
+              </span>
+              <span className="text-xs text-muted-foreground">管理画面</span>
+            </span>
+          </Link>
           <div className="flex items-center gap-4">
             {user && (
               <span className="flex flex-col text-right text-sm leading-tight">
