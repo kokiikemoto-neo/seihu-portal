@@ -10,9 +10,10 @@
  * getCurrentUser() を読むのみ（layout は cookies() を読めるが request 単位で動く）。
  */
 import type { Metadata } from 'next';
-import { getCurrentUser } from '@/server/auth';
+import { getCurrentUser, isAdmin } from '@/server/auth';
 import { logout } from '@/server/actions';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { AdminNav } from '@/components/admin/AdminNav';
 
 export const metadata: Metadata = {
   title: {
@@ -44,6 +45,7 @@ export default async function AdminLayout({
             <LogoutButton logoutAction={logout} />
           </div>
         </div>
+        <AdminNav isAdmin={isAdmin(user)} />
       </header>
       {children}
     </div>
