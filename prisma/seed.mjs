@@ -67,6 +67,49 @@ async function main() {
     create: { email: adminEmail, name: '管理者', role: 'admin', passwordHash },
   });
   console.log(`seeded admin user: ${admin.email}（パスワードは ADMIN_PASSWORD）`);
+
+  // サンプル案件＋必要書類（閲覧確認用）。固定IDで idempotent に。
+  const projects = [
+    {
+      id: 'proj-sample-1',
+      name: '新サービス導入申請',
+      description: '社内向け新サービスの導入にあたり必要な申請・書類一式。',
+      owner: '情報システム課',
+      dueDate: new Date('2026-07-31'),
+      documents: [
+        { name: '導入企画書', docType: '企画', status: 'done', assignee: '山田', order: 0 },
+        { name: 'セキュリティチェックシート', docType: 'セキュリティ', status: 'reviewing', assignee: '佐藤', order: 1 },
+        { name: '稟議書', docType: '稟議', status: 'in_progress', assignee: '鈴木', order: 2 },
+        { name: '利用規約同意書', docType: '契約', status: 'not_started', assignee: null, order: 3 },
+      ],
+    },
+    {
+      id: 'proj-sample-2',
+      name: '備品購入手続き',
+      description: '部署の備品購入に必要な手続き書類。',
+      owner: '総務課',
+      dueDate: new Date('2026-06-30'),
+      documents: [
+        { name: '見積書', docType: '見積', status: 'done', assignee: '田中', order: 0 },
+        { name: '購入申請書', docType: '申請', status: 'done', assignee: '田中', order: 1 },
+        { name: '検収書', docType: '検収', status: 'not_started', assignee: null, order: 2 },
+      ],
+    },
+  ];
+  for (const proj of projects) {
+    const { documents, ...data } = proj;
+    await prisma.project.upsert({
+      where: { id: proj.id },
+      update: { name: data.name, description: data.description, owner: data.owner, dueDate: data.dueDate },
+      create: data,
+    });
+    // 書類は一旦消してから入れ直す（サンプルの再現性のため）
+    await prisma.document.deleteMany({ where: { projectId: proj.id } });
+    await prisma.document.createMany({
+      data: documents.map((d) => ({ ...d, projectId: proj.id })),
+    });
+  }
+  console.log(`seeded ${projects.length} sample projects`);
 }
 
 main()

@@ -21,6 +21,36 @@ model User {
   updatedAt    DateTime @updatedAt
 }
 
+// 案件（プロジェクト/申請等）— 必要書類を束ねる単位
+model Project {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  owner       String? // 担当
+  dueDate     DateTime? // 期限
+  documents   Document[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// 必要書類（案件に紐づく。status で進捗を表す）
+model Document {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  docType   String? // 種類
+  status    String    @default("not_started") // not_started | in_progress | reviewing | done
+  assignee  String? // 担当
+  dueDate   DateTime?
+  note      String?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([projectId])
+}
+
 model Page {
   id              String   @id @default(cuid())
   slug            String   @unique
