@@ -16,7 +16,8 @@
 | 3C | 定番ブロック拡充（問い合わせ先/組織案内/画像/余白）＝計11ブロック | ✅ 完了 |
 | 3D | SEO/メタ（generateMetadata・OGP・sitemap・robots・ページ設定編集） | ✅ 完了 |
 | 3E | 認証（管理画面ログイン保護・編集者ユーザー） | ✅ 完了 |
-| 3F | 本番デプロイ（Postgres化・ホスティング）・権限ロール細分化 | ⬜ 未着手 |
+| 3F | 権限ロール（管理者/利用者）＋ユーザー管理画面 | ✅ 完了 |
+| 3G | 本番デプロイ（Postgres化・ホスティング） | ⬜ 未着手 |
 
 品質ゲート（最終確認時）: `tsc --noEmit` ✅ / `eslint` ✅ / `next build` ✅ / dev実機スモーク ✅
 永続化検証: 別プロセスからのDB書き込みをdevサーバが読み取り、公開→`/任意slug`描画→下書き戻しで404、を確認済み。
@@ -34,7 +35,8 @@
 - [x] デザインシステム（MASTER.md準拠、WCAG配慮）＋スタイルガイド `/style-guide`
 - [x] 管理画面: ページ一覧 `/admin/pages` / ビルダー `/admin/builder/[id]`
 - [x] **SEO/メタ**: 公開ページの `generateMetadata`（title/description/OGP/canonical）、`/sitemap.xml`、`/robots.txt`、ビルダーの「ページ設定」でtitle・SEO説明文を編集（未設定時は本文から自動生成）
-- [x] **認証**: 管理画面ログイン（`/login`）で`/admin`を保護（middleware＋各アクションで多層防御）、編集者ユーザー（DB・bcrypt・JWTセッション）、ログアウト。初期管理者は `npm run db:seed`（`.env` の ADMIN_EMAIL/PASSWORD）
+- [x] **認証**: 管理画面ログイン（`/login`）で`/admin`を保護（middleware＋各アクションで多層防御）、ログアウト。初期管理者は `npm run db:seed`（`.env` の ADMIN_EMAIL/PASSWORD）
+- [x] **権限ロール（管理者/利用者）**: 管理者＝ページ編集＋ユーザー管理、利用者＝ページ編集のみ。`/admin/users` で管理者がアカウント追加/削除/ロール変更（最後の管理者・自己削除はガード）。利用者にはナビの「ユーザー管理」を非表示＋ルート/アクションで遮断
 - [x] デモページ（slug: `home`）※ `npm run db:seed` で投入
 
 ## まだできていないこと
