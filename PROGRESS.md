@@ -20,7 +20,7 @@
 | 3E | 認証（管理画面ログイン保護・編集者ユーザー） | ✅ 完了 |
 | 3F | 権限ロール（管理者/利用者）＋ユーザー管理画面 | ✅ 完了 |
 | 4 | 案件・書類進捗管理（主機能。案件×必要書類×ステータス、閲覧=全員/編集=管理者） | ✅ 完了 |
-| 5 | 本番デプロイ（Postgres化・ホスティング） | ⬜ 未着手 |
+| 5 | 本番デプロイ準備（Vercel+マネージドPostgres構成・手順書） | ✅ 準備完了（実投入は要操作） |
 
 品質ゲート（最終確認時）: `tsc --noEmit` ✅ / `eslint` ✅ / `next build` ✅ / dev実機スモーク ✅
 永続化検証: 別プロセスからのDB書き込みをdevサーバが読み取り、公開→`/任意slug`描画→下書き戻しで404、を確認済み。
@@ -42,6 +42,16 @@
 - [x] **認証**: 管理画面ログイン（`/login`）で`/admin`を保護（middleware＋各アクションで多層防御）、ログアウト。初期管理者は `npm run db:seed`（`.env` の ADMIN_EMAIL/PASSWORD）
 - [x] **権限ロール（管理者/利用者）**: 管理者＝ページ編集＋ユーザー管理、利用者＝ページ編集のみ。`/admin/users` で管理者がアカウント追加/削除/ロール変更（最後の管理者・自己削除はガード）。利用者にはナビの「ユーザー管理」を非表示＋ルート/アクションで遮断
 - [x] デモページ（slug: `home`）※ `npm run db:seed` で投入
+
+## 本番デプロイ（準備完了・手順は docs/DEPLOY.md）
+
+- 構成: **Vercel + マネージドPostgres**（Neon/Supabase/Vercel Postgres）。ローカルはSQLiteのまま。
+- 本番スキーマ `prisma/postgres/schema.prisma`（モデルはSQLite版と同期）＋初期マイグレーションSQL。
+- Vercel Build Command: `npm run vercel-build`（generate＋migrate deploy＋build）。
+- 必要な環境変数: `DATABASE_URL`(プール)・`DIRECT_URL`(直結)・`SESSION_SECRET`・`NEXT_PUBLIC_SITE_URL`・`ADMIN_EMAIL`/`ADMIN_PASSWORD`（`.env.production.example`）。
+- 初期管理者投入: `npm run db:seed:prod`（本番DB向け）。
+- 社内限定にする場合は Vercel のアクセス保護 / VPN / IP制限 を別途設定（docs/DEPLOY.md §4）。
+- ⚠️ 実際のVercel/Postgresへの投入はアカウント操作が必要（ローカルにPostgres無のため実機検証は手順書ベース）。
 
 ## まだできていないこと
 
