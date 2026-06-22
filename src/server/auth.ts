@@ -116,3 +116,23 @@ export async function requireUser(): Promise<SessionUser> {
   }
   return user;
 }
+
+/** ロール定数。'admin'=管理者（ページ編集+ユーザー管理）, 'user'=利用者（ページ編集のみ）。 */
+export type Role = 'admin' | 'user';
+
+/** 現在のユーザーが管理者か。 */
+export function isAdmin(user: SessionUser | null): boolean {
+  return user?.role === 'admin';
+}
+
+/**
+ * 管理者必須の処理で呼ぶ。未ログイン or 管理者でなければ例外を投げる。
+ * ユーザー管理などの管理者専用 Server Action 冒頭で必ず呼ぶこと。
+ */
+export async function requireAdmin(): Promise<SessionUser> {
+  const user = await requireUser();
+  if (user.role !== 'admin') {
+    throw new Error('FORBIDDEN: 管理者権限が必要です。');
+  }
+  return user;
+}
