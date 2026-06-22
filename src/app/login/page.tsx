@@ -2,10 +2,10 @@
  * ログイン画面（③ 配線 / UI は ② の LoginForm）
  *
  * Server Component:
- *   1. 既にログイン済み（getCurrentUser）なら /admin/pages へリダイレクト。
+ *   1. 既にログイン済み（getCurrentUser）なら /admin/projects へリダイレクト。
  *   2. searchParams（Next.js 16 では Promise）の `from` をサニタイズして redirectTo を決定。
  *      - open-redirect 対策: `/` 始まり かつ `//`（プロトコル相対）でない場合のみ採用。
- *      - 既定は /admin/pages。
+ *      - 既定は /admin/projects。
  *   3. ② の LoginForm（Client Component）へ loginAction / redirectTo を渡す。
  *
  * この画面は middleware の matcher（/admin 配下のみ）の対象外＝未ログインで公開アクセス可能。
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const DEFAULT_REDIRECT = '/admin/pages';
+const DEFAULT_REDIRECT = '/admin/projects';
 
 /**
  * リダイレクト先候補をサニタイズする。
