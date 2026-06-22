@@ -1,0 +1,75 @@
+// ========================================================================
+// 本番(Vercel)用 Prisma スキーマ — PostgreSQL
+//
+// ローカル開発は prisma/schema.prisma (SQLite) を使う。こちらは本番ビルド専用。
+//   - 生成:   prisma generate --schema prisma/postgres/schema.prisma
+//   - 適用:   prisma migrate deploy --schema prisma/postgres/schema.prisma
+//
+// ⚠️ モデル定義は prisma/schema.prisma と必ず一致させること（2ファイルを同期）。
+//   layout/JSON は両者とも String 保持（リポジトリ層が parse/stringify するため共通）。
+//
+// 接続: DATABASE_URL = アプリ実行時用（プール接続を推奨: Neon/Supabase の pooled URL）
+//       DIRECT_URL   = マイグレーション用の直結（migrate deploy はプールを通さない）
+// binaryTargets: Vercel(Amazon Linux)用に rhel-openssl-3.0.x を含める。
+// ========================================================================
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("user") // 'admin' | 'user'
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  owner       String?
+  dueDate     DateTime?
+  documents   Document[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Document {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  docType   String?
+  status    String    @default("not_started")
+  assignee  String?
+  dueDate   DateTime?
+  note      String?
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([projectId])
+}
+
+model Page {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String?
+  status          String   @default("draft")
+  draftLayout     String   @default("[]")
+  publishedLayout String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

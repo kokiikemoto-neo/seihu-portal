@@ -9,6 +9,9 @@ import { PortalHome } from '@/components/home/PortalHome';
 import type { PortalHomeProps } from '@/components/home/PortalHome';
 import { pageRepository } from '@/server/pageStore';
 
+// DBの内容を常に反映し、ビルド時にDB接続しない（本番はリクエスト時レンダリング）。
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Seihu Portal',
 };

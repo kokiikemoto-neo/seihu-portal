@@ -12,6 +12,9 @@ import { pageRepository } from '@/server/pageStore';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
+// 公開ページの変化を反映し、ビルド時にDB接続しない（リクエスト時に生成）。
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages = await pageRepository.list();
   const published = pages.filter(
